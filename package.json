@@ -1,0 +1,22 @@
+{
+  "name": "qrc",
+  "version": "0.1.0",
+  "description": "Native bindings for libqrencode & libpng",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "rm -r build || (exit 0)",
+    "install": "node-gyp rebuild"
+  },
+  "repository": "",
+  "keywords": [
+    "QR",
+    "codes"
+  ],
+  "author": "Tobias Muellerleile <muellerleile@hrz.uni-marburg.de>",
+  "license": "LGPL",
+  "gypfile": true,
+  "dependencies": {
+    "bindings": "1.1.0"
+  }
+}
