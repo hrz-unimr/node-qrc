@@ -31,6 +31,19 @@ struct Qrc_Params {
   }
 };
 
+struct Qrc_Png_Buffer {
+  char *data;
+  size_t size;
+  Qrc_Png_Buffer() {
+    data = NULL;
+    size = 0;
+  }
+  ~Qrc_Png_Buffer() {
+    if (data) {
+      free(data);
+    }
+  }
+};
 
 Qrc_Params* ValidateArgs(const Arguments& args) {
   struct Qrc_Params* params;
@@ -149,6 +162,25 @@ Handle<Value> EncodeBuf(const Arguments& args) {
 }
 
 
+void Qrc_png_write_buffer(png_structp png_ptr, png_bytep data, png_size_t length) {
+  Qrc_Png_Buffer* b = (Qrc_Png_Buffer *)png_get_io_ptr(png_ptr);
+  size_t nsize = b->size + length;
+
+  if (b->data) {
+    b->data = (char *)realloc(b->data, nsize);
+  } else {
+    b->data = (char *)malloc(nsize);
+  }
+
+  if (!b->data) {
+    png_error(png_ptr, "Write Error");
+  }
+
+  memcpy(b->data + b->size, data, length);
+  b->size += length;
+}
+
+
 Handle<Value> EncodePNG(const Arguments& args) {
   HandleScope scope;
   Local<Object> obj = Object::New();
@@ -161,18 +193,10 @@ Handle<Value> EncodePNG(const Arguments& args) {
   QRcode* code = Encode(params);
 
   if (code != NULL) {
-    char* bp;
-    size_t size;
-    FILE* stream;
+    Qrc_Png_Buffer* bp = new Qrc_Png_Buffer();
 
     png_structp png_ptr;
     png_infop info_ptr;
-
-    stream = open_memstream(&bp, &size);
-    if (stream == NULL) {
-      delete params;
-      return scope.Close(obj);
-    }
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
         NULL, NULL, NULL);
@@ -194,7 +218,7 @@ Handle<Value> EncodePNG(const Arguments& args) {
       return scope.Close(obj);
     }
 
-    png_init_io(png_ptr, stream);
+    png_set_write_fn(png_ptr, bp, Qrc_png_write_buffer, NULL);
 
     png_set_IHDR(png_ptr, info_ptr, (code->width + params->margin * 2) * params->dot_size, (code->width + params->margin * 2) * params->dot_size, 1,
         PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
@@ -225,16 +249,14 @@ Handle<Value> EncodePNG(const Arguments& args) {
     png_write_end(png_ptr, info_ptr);
     png_destroy_write_struct(&png_ptr, &info_ptr);
 
-    fclose(stream);
-
     delete[] row;
 
-    Local<node::Buffer> buffer = node::Buffer::New(bp, size);
+    Local<node::Buffer> buffer = node::Buffer::New(bp->data, bp->size);
     obj->Set(String::NewSymbol("width"), Integer::New(code->width));
     obj->Set(String::NewSymbol("version"), Integer::New(code->version));
     obj->Set(String::NewSymbol("data"), buffer->handle_);
     QRcode_free(code);
-    free(bp);
+    delete bp;
   }
   delete params;
   return scope.Close(obj);
