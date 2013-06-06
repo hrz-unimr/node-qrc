@@ -9,21 +9,29 @@
 using namespace v8;
 
 const unsigned int QRC_MAX_SIZE[] = { 2938, 2319, 1655, 1268 };
+const int WHITE = 16777216;
 
 struct Qrc_Params {
   const char* data;
   QRecLevel ec_level;
   int dot_size;
   int margin;
+  int foreground_color;
+  int background_color;
   int version;
 
-  Qrc_Params(std::string p_data, QRecLevel p_ec_level = QR_ECLEVEL_L, int p_dot_size = 3, int p_margin = 4, int p_version = 0) {
+  Qrc_Params(std::string p_data, QRecLevel p_ec_level = QR_ECLEVEL_L,
+          int p_version = 0,
+          int p_dot_size = 3, int p_margin = 4,
+          int p_foreground_color = 0x0, int p_background_color = 0xffffff) {
     data = new char[p_data.length() + 1];
     strcpy((char*)data, p_data.c_str());
     ec_level = p_ec_level;
+    version = p_version;
     dot_size = p_dot_size;
     margin = p_margin;
-    version = p_version;
+    foreground_color = p_foreground_color;
+    background_color = p_background_color;
   }
 
   ~Qrc_Params() {
@@ -113,6 +121,34 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
         params->margin = paramsMargin->IntegerValue();
       }
     }
+    Local<Value> paramsFgColor = paramsObj->Get(String::New("foregroundColor"));
+    if (!paramsFgColor->IsUndefined()) {
+      if (!paramsFgColor->IsUint32()) {
+        ThrowException(Exception::TypeError(String::New("Wrong type for foreground color")));
+        delete params;
+        return NULL;
+      } else if (paramsFgColor->IntegerValue() < 0 || paramsFgColor->IntegerValue() >= WHITE) {
+        ThrowException(Exception::RangeError(String::New("Foreground color out of range")));
+        delete params;
+        return NULL;
+      } else {
+        params->foreground_color = paramsFgColor->IntegerValue();
+      }
+    }
+    Local<Value> paramsBgColor = paramsObj->Get(String::New("backgroundColor"));
+    if (!paramsBgColor->IsUndefined()) {
+      if (!paramsBgColor->IsUint32()) {
+        ThrowException(Exception::TypeError(String::New("Wrong type for background color")));
+        delete params;
+        return NULL;
+      } else if (paramsBgColor->IntegerValue() < 0 || paramsBgColor->IntegerValue() >= WHITE) {
+        ThrowException(Exception::RangeError(String::New("Background color out of range")));
+        delete params;
+        return NULL;
+      } else {
+        params->background_color = paramsBgColor->IntegerValue();
+      }
+    }
     Local<Value> paramsVersion = paramsObj->Get(String::New("version"));
     if (!paramsVersion->IsUndefined()) {
       if (!paramsVersion->IsInt32()) {
@@ -197,6 +233,7 @@ Handle<Value> EncodePNG(const Arguments& args) {
 
     png_structp png_ptr;
     png_infop info_ptr;
+    png_colorp png_plte;
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
         NULL, NULL, NULL);
@@ -220,11 +257,20 @@ Handle<Value> EncodePNG(const Arguments& args) {
 
     png_set_write_fn(png_ptr, bp, Qrc_png_write_buffer, NULL);
 
+    png_plte = (png_colorp) malloc(sizeof(png_color) * 2);
+    png_plte[0].red = params->background_color >> 16 & 0xFF;
+    png_plte[0].green = params->background_color >> 8 & 0xFF;
+    png_plte[0].blue = params->background_color & 0xFF;
+    png_plte[1].red = params->foreground_color >> 16 & 0xFF;
+    png_plte[1].green = params->foreground_color >> 8 & 0xFF;
+    png_plte[1].blue = params->foreground_color & 0xFF;
+
+    png_set_PLTE(png_ptr, info_ptr, png_plte, 2);
+
     png_set_IHDR(png_ptr, info_ptr, (code->width + params->margin * 2) * params->dot_size, (code->width + params->margin * 2) * params->dot_size, 1,
-        PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
         PNG_FILTER_TYPE_DEFAULT);
 
-    png_set_invert_mono(png_ptr);
     png_write_info(png_ptr, info_ptr);
 
     png_set_packing(png_ptr);
@@ -250,6 +296,7 @@ Handle<Value> EncodePNG(const Arguments& args) {
     png_destroy_write_struct(&png_ptr, &info_ptr);
 
     delete[] row;
+    free(png_plte);
 
     Local<node::Buffer> buffer = node::Buffer::New(bp->data, bp->size);
     obj->Set(String::NewSymbol("width"), Integer::New(code->width));
