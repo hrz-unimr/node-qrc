@@ -10,7 +10,9 @@
   "repository": "",
   "keywords": [
     "QR",
-    "codes"
+    "QR code",
+    "barcode",
+    "2D code"
   ],
   "author": "Tobias Muellerleile <muellerleile@hrz.uni-marburg.de>",
   "license": "LGPL",
