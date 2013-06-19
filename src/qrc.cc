@@ -74,6 +74,20 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
       return NULL;
     }
     Local<Object> paramsObj = Local<Object>::Cast(args[1]);
+    Local<Value> paramsVersion = paramsObj->Get(String::New("version"));
+    if (!paramsVersion->IsUndefined()) {
+      if (!paramsVersion->IsInt32()) {
+        ThrowException(Exception::TypeError(String::New("Wrong type for version")));
+        delete params;
+        return NULL;
+      } else if (paramsVersion->IntegerValue() < 1 || paramsVersion->IntegerValue() > QRSPEC_VERSION_MAX) {
+        ThrowException(Exception::RangeError(String::New("Version out of range")));
+        delete params;
+        return NULL;
+      } else {
+        params->version = paramsVersion->IntegerValue();
+      }
+    }
     Local<Value> paramsEcLevel = paramsObj->Get(String::New("ecLevel"));
     if (!paramsEcLevel->IsUndefined()) {
       if (!paramsEcLevel->IsInt32()) {
@@ -147,20 +161,6 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
         return NULL;
       } else {
         params->background_color = paramsBgColor->IntegerValue();
-      }
-    }
-    Local<Value> paramsVersion = paramsObj->Get(String::New("version"));
-    if (!paramsVersion->IsUndefined()) {
-      if (!paramsVersion->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for version")));
-        delete params;
-        return NULL;
-      } else if (paramsVersion->IntegerValue() < 1 || paramsVersion->IntegerValue() > QRSPEC_VERSION_MAX) {
-        ThrowException(Exception::RangeError(String::New("Version out of range")));
-        delete params;
-        return NULL;
-      } else {
-        params->version = paramsVersion->IntegerValue();
       }
     }
   }
