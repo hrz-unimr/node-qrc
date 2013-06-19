@@ -77,11 +77,11 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsEcLevel = paramsObj->Get(String::New("ecLevel"));
     if (!paramsEcLevel->IsUndefined()) {
       if (!paramsEcLevel->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for ec level")));
+        ThrowException(Exception::TypeError(String::New("Wrong type for EC level")));
         delete params;
         return NULL;
       } else if (paramsEcLevel->IntegerValue() < QR_ECLEVEL_L || paramsEcLevel->IntegerValue() > QR_ECLEVEL_H) {
-        ThrowException(Exception::RangeError(String::New("EC level value out of range")));
+        ThrowException(Exception::RangeError(String::New("EC level out of range")));
         delete params;
         return NULL;
       } else {
@@ -110,7 +110,7 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsMargin = paramsObj->Get(String::New("margin"));
     if (!paramsMargin->IsUndefined()) {
       if (!paramsMargin->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for margin")));
+        ThrowException(Exception::TypeError(String::New("Wrong type for margin size")));
         delete params;
         return NULL;
       } else if (paramsMargin->IntegerValue() < 0 || paramsMargin->IntegerValue() > 10) {
@@ -156,7 +156,7 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
         delete params;
         return NULL;
       } else if (paramsVersion->IntegerValue() < 1 || paramsVersion->IntegerValue() > QRSPEC_VERSION_MAX) {
-        ThrowException(Exception::RangeError(String::New("Version number out of range")));
+        ThrowException(Exception::RangeError(String::New("Version out of range")));
         delete params;
         return NULL;
       } else {
