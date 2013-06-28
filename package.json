@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "rm -r build || (exit 0)",
-    "install": "node-gyp rebuild"
+    "prepublish": "rm -r build || (exit 0)"
   },
   "repository": "",
   "keywords": [
