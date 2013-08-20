@@ -21,10 +21,10 @@ Usage
 
     var qrBuffer = qrc.encode('Some text to put in a QR code');
     // or:
-    var qrPngBuffer = qrc.encode('Some text to put in a QR code PNG');
+    var qrPngBuffer = qrc.encodePng('Some text to put in a QR code PNG');
 
     // of course there are some options:
-    var qrPngBuffer = qrc.encode('Test', {
+    var qrPngBuffer = qrc.encodePng('Test', {
       version: 4,
       ecLevel: qrc.EC_H,
       dotSize: 5,
