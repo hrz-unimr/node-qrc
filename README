@@ -1,6 +1,6 @@
 node-qrc
 ========
-QR code generation using libqrencode and libpng
+QR code generation in Node.js using libqrencode and libpng
 
 Requirements
 ------------
