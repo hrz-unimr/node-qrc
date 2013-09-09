@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <node.h>
 #include <node_buffer.h>
@@ -7,6 +8,11 @@
 #include <png.h>
 
 using namespace v8;
+
+// for compatibility with libqrencode < 3.2.0:
+#ifndef QRSPEC_VERSION_MAX
+#define QRSPEC_VERSION_MAX 40
+#endif
 
 const unsigned int QRC_MAX_SIZE[] = { 2938, 2319, 1655, 1268 };
 const int WHITE = 16777216;
@@ -25,7 +31,7 @@ struct Qrc_Params {
           int p_dot_size = 3, int p_margin = 4,
           int p_foreground_color = 0x0, int p_background_color = 0xffffff) {
     data = new char[p_data.length() + 1];
-    strcpy((char*)data, p_data.c_str());
+    std::strncpy((char*)data, p_data.c_str(), p_data.length() + 1);
     ec_level = p_ec_level;
     version = p_version;
     dot_size = p_dot_size;
@@ -69,20 +75,20 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
 
   if (args.Length() > 1) {
     if (!args[1]->IsObject()) {
-      ThrowException(Exception::TypeError(String::New("Second argument must be an object")));
       delete params;
+      ThrowException(Exception::TypeError(String::New("Second argument must be an object")));
       return NULL;
     }
     Local<Object> paramsObj = Local<Object>::Cast(args[1]);
     Local<Value> paramsVersion = paramsObj->Get(String::New("version"));
     if (!paramsVersion->IsUndefined()) {
       if (!paramsVersion->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for version")));
         delete params;
+        ThrowException(Exception::TypeError(String::New("Wrong type for version")));
         return NULL;
       } else if (paramsVersion->IntegerValue() < 1 || paramsVersion->IntegerValue() > QRSPEC_VERSION_MAX) {
-        ThrowException(Exception::RangeError(String::New("Version out of range")));
         delete params;
+        ThrowException(Exception::RangeError(String::New("Version out of range")));
         return NULL;
       } else {
         params->version = paramsVersion->IntegerValue();
@@ -91,18 +97,18 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsEcLevel = paramsObj->Get(String::New("ecLevel"));
     if (!paramsEcLevel->IsUndefined()) {
       if (!paramsEcLevel->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for EC level")));
         delete params;
+        ThrowException(Exception::TypeError(String::New("Wrong type for EC level")));
         return NULL;
       } else if (paramsEcLevel->IntegerValue() < QR_ECLEVEL_L || paramsEcLevel->IntegerValue() > QR_ECLEVEL_H) {
-        ThrowException(Exception::RangeError(String::New("EC level out of range")));
         delete params;
+        ThrowException(Exception::RangeError(String::New("EC level out of range")));
         return NULL;
       } else {
         params->ec_level = (QRecLevel) paramsEcLevel->IntegerValue();
         if (data.length() > QRC_MAX_SIZE[params->ec_level]) {
-          ThrowException(Exception::RangeError(String::New("Source string length out of range")));
           delete params;
+          ThrowException(Exception::RangeError(String::New("Source string length out of range")));
           return NULL;
         }
       }
@@ -110,12 +116,12 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsDotSize = paramsObj->Get(String::New("dotSize"));
     if (!paramsDotSize->IsUndefined()) {
       if (!paramsDotSize->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for dot size")));
         delete params;
+        ThrowException(Exception::TypeError(String::New("Wrong type for dot size")));
         return NULL;
       } else if (paramsDotSize->IntegerValue() < 1 || paramsDotSize->IntegerValue() > 50) {
-        ThrowException(Exception::RangeError(String::New("Dot size out of range")));
         delete params;
+        ThrowException(Exception::RangeError(String::New("Dot size out of range")));
         return NULL;
       } else {
         params->dot_size = paramsDotSize->IntegerValue();
@@ -124,12 +130,12 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsMargin = paramsObj->Get(String::New("margin"));
     if (!paramsMargin->IsUndefined()) {
       if (!paramsMargin->IsInt32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for margin size")));
         delete params;
+        ThrowException(Exception::TypeError(String::New("Wrong type for margin size")));
         return NULL;
       } else if (paramsMargin->IntegerValue() < 0 || paramsMargin->IntegerValue() > 10) {
-        ThrowException(Exception::RangeError(String::New("Margin size out of range")));
         delete params;
+        ThrowException(Exception::RangeError(String::New("Margin size out of range")));
         return NULL;
       } else {
         params->margin = paramsMargin->IntegerValue();
@@ -138,12 +144,12 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsFgColor = paramsObj->Get(String::New("foregroundColor"));
     if (!paramsFgColor->IsUndefined()) {
       if (!paramsFgColor->IsUint32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for foreground color")));
         delete params;
+        ThrowException(Exception::TypeError(String::New("Wrong type for foreground color")));
         return NULL;
       } else if (paramsFgColor->IntegerValue() < 0 || paramsFgColor->IntegerValue() >= WHITE) {
-        ThrowException(Exception::RangeError(String::New("Foreground color out of range")));
         delete params;
+        ThrowException(Exception::RangeError(String::New("Foreground color out of range")));
         return NULL;
       } else {
         params->foreground_color = paramsFgColor->IntegerValue();
@@ -152,12 +158,12 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
     Local<Value> paramsBgColor = paramsObj->Get(String::New("backgroundColor"));
     if (!paramsBgColor->IsUndefined()) {
       if (!paramsBgColor->IsUint32()) {
-        ThrowException(Exception::TypeError(String::New("Wrong type for background color")));
         delete params;
+        ThrowException(Exception::TypeError(String::New("Wrong type for background color")));
         return NULL;
       } else if (paramsBgColor->IntegerValue() < 0 || paramsBgColor->IntegerValue() >= WHITE) {
-        ThrowException(Exception::RangeError(String::New("Background color out of range")));
         delete params;
+        ThrowException(Exception::RangeError(String::New("Background color out of range")));
         return NULL;
       } else {
         params->background_color = paramsBgColor->IntegerValue();
@@ -239,6 +245,7 @@ Handle<Value> EncodePNG(const Arguments& args) {
         NULL, NULL, NULL);
     if (!png_ptr) {
       delete params;
+      QRcode_free(code);
       return scope.Close(obj);
     }
 
@@ -246,12 +253,14 @@ Handle<Value> EncodePNG(const Arguments& args) {
     if (!info_ptr) {
       png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
       delete params;
+      QRcode_free(code);
       return scope.Close(obj);
     }
 
     if (setjmp(png_jmpbuf(png_ptr))) {
       png_destroy_write_struct(&png_ptr, &info_ptr);
       delete params;
+      QRcode_free(code);
       return scope.Close(obj);
     }
 

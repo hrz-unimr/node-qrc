@@ -179,7 +179,37 @@ suite('Encode to buffer', function () {
       '861b0aa7dae66323e005a55771e8555cfed694cd');
   });
 
-  test('explicitly set EC level', function() {
+  test('explicitly set EC level(L)', function() {
+    var act = qrc.encode('TEST', { ecLevel: qrc.EC_L });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '3a9bf8d82bbfd0f826371d0decbbbacc32e20c40');
+  });
+
+  test('explicitly set EC level(M)', function() {
+    var act = qrc.encode('TEST', { ecLevel: qrc.EC_M });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '8031ddbf767eb631a1dc996005c7d7fda78db2a1');
+  });
+
+  test('explicitly set EC level(Q)', function() {
+    var act = qrc.encode('TEST', { ecLevel: qrc.EC_Q });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      'b417f38ac4d0130530d04cc7a514dd287d2fa0b6');
+  });
+
+  test('explicitly set EC level(H)', function() {
     var act = qrc.encode('TEST', { ecLevel: qrc.EC_H });
     var hash = crypto.createHash('sha1');
     assert.strictEqual(act.version, 1);
@@ -188,6 +218,7 @@ suite('Encode to buffer', function () {
     assert.strictEqual(hash.digest('hex'),
       'dc645b387c5c8189bde0606ef5c6d85880d67fbc');
   });
+
 });
 
 suite('Encode to PNG buffer', function () {
@@ -211,7 +242,37 @@ suite('Encode to PNG buffer', function () {
       '1eeea344b6dc8ff975eeab7a661a383a10757748');
   });
 
-  test('explicitly set EC level', function() {
+  test('explicitly set EC level(L)', function() {
+    var act = qrc.encodePng('TEST', { ecLevel: qrc.EC_L });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '39e9a557be36ad5643f542ad5ec6e316e8b9d6bb');
+  });
+
+  test('explicitly set EC level(M)', function() {
+    var act = qrc.encodePng('TEST', { ecLevel: qrc.EC_M });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '225da4e78122c18acf85696046fa086dff418ba9');
+  });
+
+  test('explicitly set EC level(Q)', function() {
+    var act = qrc.encodePng('TEST', { ecLevel: qrc.EC_Q });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '7f9671a9cbdeae5cbc402292f4f1b4dbcecdd51e');
+  });
+
+  test('explicitly set EC level(H)', function() {
     var act = qrc.encodePng('TEST', { ecLevel: qrc.EC_H });
     var hash = crypto.createHash('sha1');
     assert.strictEqual(act.version, 1);
