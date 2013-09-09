@@ -1,6 +1,6 @@
 node-qrc
 ========
-QR code generation in Node.js using libqrencode and libpng
+QR Code generation in Node.js using libqrencode and libpng
 
 Requirements
 ------------
@@ -19,9 +19,9 @@ Usage
 
     var qrc = require('qrc');
 
-    var qrBuffer = qrc.encode('Some text to put in a QR code');
+    var qrBuffer = qrc.encode('Some text to put in a QR Code');
     // or:
-    var qrPngBuffer = qrc.encodePng('Some text to put in a QR code PNG');
+    var qrPngBuffer = qrc.encodePng('Some text to put in a QR Code PNG');
 
     // of course there are some options:
     var qrPngBuffer = qrc.encodePng('Test', {
@@ -34,7 +34,7 @@ Usage
     });
 
 **Options**
-`version` – *Minimum* version of QR code, valid values: 1-41, 0 = auto
+`version` – *Minimum* version of QR Code, valid values: 1-41, 0 = auto
 [default]
 `ecLevel` – error correction level, valid values: EC_L (lowest [default]) –
 EC_M – EC_Q - EC_H (highest)
@@ -48,6 +48,11 @@ valid values: 0-10 (default: 4)
 0xFFFFFF [= white])
 
 * = PNG encoding only
+
+Legal
+-----
+QR Code is a registered trademark of
+[DENSO WAVE INCORPORATED](http://www.denso-wave.com/en/).
 
 License
 -------
