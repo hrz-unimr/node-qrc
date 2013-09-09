@@ -193,7 +193,7 @@ Handle<Value> EncodeBuf(const Arguments& args) {
 
   QRcode* code = Encode(params);
   delete params;
-  if (code != NULL) {
+  if (code) {
     Local<node::Buffer> buffer = node::Buffer::New((const char*)code->data, code->width * code->width);
     codeObj->Set(String::NewSymbol("width"), Integer::New(code->width));
     codeObj->Set(String::NewSymbol("version"), Integer::New(code->version));
@@ -234,7 +234,7 @@ Handle<Value> EncodePNG(const Arguments& args) {
 
   QRcode* code = Encode(params);
 
-  if (code != NULL) {
+  if (code) {
     Qrc_Png_Buffer* bp = new Qrc_Png_Buffer();
 
     png_structp png_ptr;
