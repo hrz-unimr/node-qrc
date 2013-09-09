@@ -7,7 +7,10 @@
     "test": "./node_modules/.bin/mocha",
     "prepublish": "rm -r build || (exit 0)"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hrz-unimr/node-qrc.git"
+  },
   "keywords": [
     "QR",
     "QR code",
