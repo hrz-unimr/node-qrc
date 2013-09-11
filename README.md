@@ -33,21 +33,27 @@ Usage
       backgroundColor: 0x00FF00
     });
 
-**Options**
+### Options
+
 `version` – *Minimum* version of QR Code, valid values: 1-41, 0 = auto
 [default]
+
 `ecLevel` – error correction level, valid values: EC_L (lowest [default]) –
 EC_M – EC_Q - EC_H (highest)
+
 `dotSize`* – Size of one ‚dot‘ in pixels, valid values: 1-50
 (default: 3)
+
 `margin`* – Size of margin (in dots with background color),
 valid values: 0-10 (default: 4)
+
 `foregroundColor`* – Foreground color, valid values:
 0x0-0xFFFFFF (default: 0x0 [= black])
+
 `backgroundColor`* – Background color, valid values: 0x0-0xFFFFFF (default:
 0xFFFFFF [= white])
 
-* = PNG encoding only
+\* = PNG encoding only
 
 Legal
 -----
