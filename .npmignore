@@ -1,3 +1,5 @@
 *.tgz
 *.png
+.jshint*
 test/
+build/
