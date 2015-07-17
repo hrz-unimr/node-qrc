@@ -1,9 +1,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+
+#include <errno.h>
+
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
+
 #include <qrencode.h>
 #include <png.h>
 
@@ -18,21 +22,23 @@ const unsigned int QRC_MAX_SIZE[] = { 2938, 2319, 1655, 1268 };
 const int WHITE = 16777216;
 
 struct Qrc_Params {
-	const char* data;
+	const unsigned char *data;
 	QRecLevel ec_level;
+	QRencodeMode mode;
 	int dot_size;
 	int margin;
 	int foreground_color;
 	int background_color;
 	int version;
 
-	Qrc_Params(std::string p_data, QRecLevel p_ec_level = QR_ECLEVEL_L,
+	Qrc_Params(std::string p_data, QRecLevel p_ec_level = QR_ECLEVEL_L, QRencodeMode p_mode = QR_MODE_8,
 			int p_version = 0,
 			int p_dot_size = 3, int p_margin = 4,
 			int p_foreground_color = 0x0, int p_background_color = 0xffffff) {
-		data = new char[p_data.length() + 1];
+		data = new unsigned char[p_data.length() + 1];
 		std::strncpy((char*)data, p_data.c_str(), p_data.length() + 1);
 		ec_level = p_ec_level;
+		mode = p_mode;
 		version = p_version;
 		dot_size = p_dot_size;
 		margin = p_margin;
@@ -113,6 +119,21 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
 				}
 			}
 		}
+		Local<Value> paramsMode = paramsObj->Get(String::New("mode"));
+		if (!paramsMode->IsUndefined()) {
+			if (!paramsMode->IsInt32()) {
+				delete params;
+				ThrowException(Exception::TypeError(String::New("Wrong type for mode")));
+				return NULL;
+			} else if (paramsMode->IntegerValue() < QR_MODE_NUM || paramsMode->IntegerValue() > QR_MODE_KANJI) {
+				delete params;
+				ThrowException(Exception::RangeError(String::New("Mode out of range")));
+				return NULL;
+			} else {
+				params->mode = (QRencodeMode) paramsMode->IntegerValue();
+				// TODO check length of data
+			}
+		}
 		Local<Value> paramsDotSize = paramsObj->Get(String::New("dotSize"));
 		if (!paramsDotSize->IsUndefined()) {
 			if (!paramsDotSize->IsInt32()) {
@@ -176,8 +197,35 @@ Qrc_Params* ValidateArgs(const Arguments& args) {
 
 
 QRcode* Encode(Qrc_Params* params) {
-	QRcode* code;
-	code = QRcode_encodeString8bit((const char*)params->data, params->version, params->ec_level);
+	QRinput *input;
+	if ((input = QRinput_new2(params->version, params->ec_level)) == NULL) {
+		if (errno == EINVAL) {
+			ThrowException(Exception::Error(String::New("Input data is invalid")));
+			return NULL;
+		}
+		if (errno == ENOMEM) {
+			ThrowException(Exception::Error(String::New("Not enough memory")));
+			return NULL;
+		}
+	}
+	if (QRinput_append(input, params->mode, strlen((const char *)params->data), params->data) == -1) {
+		if (errno == EINVAL) {
+			ThrowException(Exception::Error(String::New("Input data is invalid")));
+			return NULL;
+		}
+		if (errno == ENOMEM) {
+			ThrowException(Exception::Error(String::New("Not enough memory")));
+			return NULL;
+		}
+	}
+	QRcode *code = QRcode_encodeInput(input);
+	QRinput_free(input);
+
+	if (code == NULL) {
+		ThrowException(Exception::Error(String::New("Could not encode input")));
+		return NULL;
+	}
+
 	return code;
 }
 
@@ -205,7 +253,7 @@ Handle<Value> EncodeBuf(const Arguments& args) {
 
 
 void Qrc_png_write_buffer(png_structp png_ptr, png_bytep data, png_size_t length) {
-	Qrc_Png_Buffer* b = (Qrc_Png_Buffer *)png_get_io_ptr(png_ptr);
+	Qrc_Png_Buffer *b = (Qrc_Png_Buffer *)png_get_io_ptr(png_ptr);
 	size_t nsize = b->size + length;
 
 	if (b->data) {
@@ -232,7 +280,7 @@ Handle<Value> EncodePNG(const Arguments& args) {
 		return scope.Close(obj);
 	}
 
-	QRcode* code = Encode(params);
+	QRcode *code = Encode(params);
 
 	if (code) {
 		Qrc_Png_Buffer* bp = new Qrc_Png_Buffer();
