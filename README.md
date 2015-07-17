@@ -41,6 +41,9 @@ Usage
 `ecLevel` – error correction level, valid values: EC_L (lowest [default]) –
 EC_M – EC_Q - EC_H (highest)
 
+`mode` – QR code mode, valid values: MODE_NUM (numeral)– MODE_AN (alphanumeric)–
+MODE_8 (8-bit binary [default])- MODE_KANJI (kanji)
+
 `dotSize`* – Size of one ‚dot‘ in pixels, valid values: 1-50
 (default: 3)
 
