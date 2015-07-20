@@ -254,9 +254,11 @@ void Qrc_png_write_buffer(png_structp png_ptr, png_bytep data, png_size_t length
 	Qrc_Png_Buffer *b = (Qrc_Png_Buffer *)png_get_io_ptr(png_ptr);
 	size_t nsize = b->size + length; // FIXME: overflow check anyone?
 
+	char *old = b->data;
 	b->data = (char *)realloc(b->data, nsize);
 
 	if (!b->data) {
+		free(old);
 		png_error(png_ptr, "Write Error");
 	}
 
