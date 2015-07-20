@@ -56,6 +56,32 @@ suite('Validation of input params', function () {
     );
   });
 
+  test('mode', function () {
+    assert.throws(
+      function () {
+        qrc.encode('TEST', { mode: qrc.MODE_NUM - 1 });
+      },
+      /Mode out of range/
+    );
+    assert.throws(
+      function () {
+        qrc.encode('TEST', { mode: qrc.MODE_KANJI + 1 });
+      },
+      /Mode out of range/
+    );
+    assert.throws(
+      function () {
+        qrc.encode('TEST', { mode: qrc.MODE_NUM + 0.5 });
+      },
+      /Wrong type for mode/
+    );
+    assert.doesNotThrow(
+      function () {
+        qrc.encode('TEST', { mode: qrc.MODE_AN });
+      }
+    );
+  });
+
   test('dot size', function () {
     assert.throws(
       function () {
@@ -219,6 +245,35 @@ suite('Encode to buffer', function () {
       'dc645b387c5c8189bde0606ef5c6d85880d67fbc');
   });
 
+  test('explicitly set mode(NUM)', function() {
+    var act = qrc.encode('1234', { mode: qrc.MODE_NUM });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '3bbb8a9bfa4ba87aa5ed47d95ec4e36b53180498');
+  });
+
+  test('explicitly set mode(AN)', function() {
+    var act = qrc.encode('FOO1234', { mode: qrc.MODE_AN });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      'cc92bdbf848fa1a98bf9e22100495ab06f809387');
+  });
+
+  test('explicitly set mode(8)', function() {
+    var act = qrc.encode('FOO1234', { mode: qrc.MODE_8 });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '04ad4388c4dbc311d667d41200f4c4fae441c30f');
+  });
 });
 
 suite('Encode to PNG buffer', function () {
@@ -280,6 +335,36 @@ suite('Encode to PNG buffer', function () {
     hash.update(act.data);
     assert.strictEqual(hash.digest('hex'),
       '907541542df208453ad40e357fa7d9ed98d208ae');
+  });
+
+  test('explicitly set mode(NUM)', function() {
+    var act = qrc.encodePng('1234', { mode: qrc.MODE_NUM });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '5e2862515472cf8a98b1432d5a2da9ae82ce6d9c');
+  });
+
+  test('explicitly set mode(AN)', function() {
+    var act = qrc.encodePng('FOO1234', { mode: qrc.MODE_AN });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '07f6ebca2afc5b5c63b08bbc4f23cf2763465dac');
+  });
+
+  test('explicitly set mode(8)', function() {
+    var act = qrc.encodePng('FOO1234', { mode: qrc.MODE_8 });
+    var hash = crypto.createHash('sha1');
+    assert.strictEqual(act.version, 1);
+    assert.strictEqual(act.width, 21);
+    hash.update(act.data);
+    assert.strictEqual(hash.digest('hex'),
+      '964df950b5b50d7d7fef91bed7f9f5fa7c9d5906');
   });
 
   test('explicitly set dot size', function() {

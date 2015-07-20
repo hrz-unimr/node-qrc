@@ -41,6 +41,9 @@ Usage
 `ecLevel` – error correction level, valid values: EC_L (lowest [default]) –
 EC_M – EC_Q - EC_H (highest)
 
+`mode` – QR code mode, valid values: MODE_NUM (numeral)– MODE_AN (alphanumeric)–
+MODE_8 (8-bit binary [default])- MODE_KANJI (kanji)
+
 `dotSize`* – Size of one ‚dot‘ in pixels, valid values: 1-50
 (default: 3)
 
@@ -63,6 +66,7 @@ QR Code is a registered trademark of
 License
 -------
 Copyright (C) 2013 Tobias Muellerleile <muellerleile@hrz.uni-marburg.de>
+Copyright (C) 2015 Net Oxygen Sàrl <info@netoxygen.ch>
 
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free
