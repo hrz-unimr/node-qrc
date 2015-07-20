@@ -59,9 +59,7 @@ struct Qrc_Png_Buffer {
 		size = 0;
 	}
 	~Qrc_Png_Buffer() {
-		if (data) {
-			free(data);
-		}
+		free(data);
 	}
 };
 
