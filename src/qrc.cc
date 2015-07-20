@@ -22,7 +22,7 @@ const unsigned int QRC_MAX_SIZE[] = { 2938, 2319, 1655, 1268 };
 const int WHITE = 16777216;
 
 struct Qrc_Params {
-	const unsigned char *data;
+	unsigned char *data;
 	QRecLevel ec_level;
 	QRencodeMode mode;
 	int dot_size;
@@ -36,7 +36,7 @@ struct Qrc_Params {
 			int p_dot_size = 3, int p_margin = 4,
 			int p_foreground_color = 0x0, int p_background_color = 0xffffff) {
 		data = new unsigned char[p_data.length() + 1];
-		std::strncpy((char*)data, p_data.c_str(), p_data.length() + 1);
+		std::strncpy((char *)data, p_data.c_str(), p_data.length() + 1);
 		ec_level = p_ec_level;
 		mode = p_mode;
 		version = p_version;
