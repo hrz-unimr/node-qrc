@@ -1,6 +1,6 @@
 {
   "name": "qrc",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Native bindings for libqrencode & libpng",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   "license": "LGPL-2.1",
   "gypfile": true,
   "engines": {
-    "node" : ">=0.10 <0.12"
+    "node": ">=0.10 <0.12"
   },
   "dependencies": {
     "bindings": "1.1.0"
