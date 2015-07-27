@@ -21,6 +21,9 @@
   "author": "Tobias Muellerleile <muellerleile@hrz.uni-marburg.de>",
   "license": "LGPL",
   "gypfile": true,
+  "engines": {
+    "node" : ">=0.10 <0.12"
+  },
   "dependencies": {
     "bindings": "1.1.0"
   },
