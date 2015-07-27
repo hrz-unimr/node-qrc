@@ -4,6 +4,7 @@ QR Code generation in Node.js using libqrencode and libpng
 
 Requirements
 ------------
+- [node](https://nodejs.org) v0.10 (v0.12 is *not* supported at present)
 - [libpng](http://www.libpng.org/pub/png/libpng.html)
 - [libqrencode](http://fukuchi.org/works/qrencode/)
 
