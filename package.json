@@ -19,7 +19,7 @@
     "2D code"
   ],
   "author": "Tobias Muellerleile <muellerleile@hrz.uni-marburg.de>",
-  "license": "LGPL",
+  "license": "LGPL-2.1",
   "gypfile": true,
   "engines": {
     "node" : ">=0.10 <0.12"
